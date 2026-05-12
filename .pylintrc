@@ -1,0 +1,16 @@
+[MESSAGES CONTROL]
+# Matikan peringatan yang sering dianggap "bodoh" atau terlalu cerewet
+disable=
+    C0114, # missing-module-docstring
+    C0115, # missing-class-docstring
+    C0116, # missing-function-docstring
+    C0103, # invalid-name (biar gak protes kalau nama variabel cuma 'i' atau 'db')
+    R0903, # too-few-public-methods (biar gak protes kalau class cuma punya sedikit method)
+    W0511, # fixme (biar gak protes kalau ada komentar TODO)
+
+[FORMAT]
+# Biar gak protes kalau baris kode agak panjang sedikit
+max-line-length=120
+[TYPECHECK]
+# Masukkan nama modul yang sering bikin Pylint bingung
+ignored-modules=cv2,numpy,torch,tensorflow,sqlalchemy
