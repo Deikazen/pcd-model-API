@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 
 
 def extracted_feature(binary_image):
@@ -17,20 +18,25 @@ def extracted_feature(binary_image):
         area = cv2.contourArea(cnt)
 
         # filter noise kecil
-        if area > 100:
+        if area > 30:
 
-            x, y, w, h = cv2.boundingRect(cnt)  # Q
-            aspect_ratio = float(w) / h if h != 0 else 0
+            perimeter = cv2.arcLength(cnt, True)
 
-            if aspect_ratio > 1.5 or aspect_ratio < 0.7:
+            if perimeter > 0:
+                # Circularity = (4 * pi * area) / (perimeter^2)
+                # Retak biasanya memiliki circularity yang sangat rendah (mendekati 0)
+                # karena bentuknya yang memanjang dan tidak beraturan.
+                circularity = (4 * np.pi * area) / (perimeter * perimeter)
 
-                perimeter = cv2.arcLength(cnt, True)
+                # Filter ganda: Sangat ketat untuk area kecil, lebih longgar untuk area besar
+                # Ini membantu menghilangkan noise kecil di Negative sambil menangkap retakan besar di Positive
+                if (circularity < 0.01) or (area > 200 and circularity < 0.1):
 
-                total_area += area
-                total_perimeter += perimeter
-                crack_count += 1
+                    total_area += area
+                    total_perimeter += perimeter
+                    crack_count += 1
 
-                valid_contours.append(cnt)
+                    valid_contours.append(cnt)
 
     features = {
         "total_area": total_area,
