@@ -53,7 +53,22 @@ graph TD
     ```
 
 4.  **Akses Aplikasi**
-    Buka browser dan akses `http://127.0.0.1:8000` (atau port yang tertera di terminal).
+    Buka browser dan akses `http://127.0.0.1:5000` (atau port yang tertera di terminal).
+
+## ☁️ Deployment ke Vercel
+
+Sistem ini siap di-deploy ke Vercel:
+
+1.  **Gunakan OpenCV Headless**: Pastikan `requirements.txt` menggunakan `opencv-python-headless`.
+2.  **Konfigurasi**: File `vercel.json` sudah disediakan untuk mengatur routing ke FastAPI.
+3.  **Langkah Deployment**:
+    -   Push kode Anda ke GitHub.
+    -   Hubungkan repository ke Vercel Dashboard.
+    -   Vercel akan mendeteksi `vercel.json` dan melakukan build otomatis.
+
+> [!IMPORTANT]
+> Vercel memiliki limit ukuran request (4.5MB). Pastikan gambar yang di-upload tidak melebihi batas tersebut.
+
 
 ## 🔌 Dokumentasi API
 
