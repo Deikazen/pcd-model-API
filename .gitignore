@@ -1,3 +1,5 @@
 venv
 arsitektur
 output
+**/__pycache__/
+*.pyc

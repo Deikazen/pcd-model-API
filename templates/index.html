@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crack Detective AI - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --bg: #0b0f1a;
+            --card-bg: rgba(23, 28, 45, 0.8);
+            --text-main: #ffffff;
+            --text-dim: #94a3b8;
+            --accent-heavy: #ef4444;
+            --accent-medium: #f59e0b;
+            --accent-light: #10b981;
+            --accent-none: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(6, 182, 212, 0.1) 0%, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        header {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #a5b4fc, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .main-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .drop-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            transform: scale(1.02);
+        }
+
+        .drop-zone-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .drop-zone-text {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .preview-box {
+            display: none;
+            width: 100%;
+            aspect-ratio: 4/3;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        #imagePreview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .analyze-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1.25rem;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px var(--primary-glow);
+            display: none;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px var(--primary-glow);
+            background: #4f46e5;
+        }
+
+        .result-section {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .prediction-box {
+            text-align: center;
+            padding: 2.5rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: none;
+        }
+
+        .prediction-label {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .prediction-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            display: none;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-name {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-num {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .loader {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .color-HEAVY { color: var(--accent-heavy); }
+        .color-MEDIUM { color: var(--accent-medium); }
+        .color-LIGHT { color: var(--accent-light); }
+        .color-NON { color: var(--accent-none); }
+
+        .placeholder-text {
+            color: var(--text-dim);
+            text-align: center;
+            padding: 4rem 2rem;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">CRACK DETECTIVE AI</div>
+        <div class="status-badge">
+            <div class="pulse"></div>
+            System Online
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Left Side: Upload -->
+        <section class="upload-section">
+            <div class="card">
+                <div class="drop-zone" id="dropZone">
+                    <span class="drop-zone-icon">🚀</span>
+                    <p class="drop-zone-text" id="dropText">Click to select image or drag & drop</p>
+                    <input type="file" id="fileInput" accept="image/*">
+                </div>
+
+                <div class="preview-box" id="previewBox">
+                    <img id="imagePreview" src="" alt="Scan Preview">
+                </div>
+
+                <button class="analyze-btn" id="analyzeBtn">START ANALYSIS</button>
+            </div>
+        </section>
+
+        <!-- Right Side: Results -->
+        <section class="result-section">
+            <div class="card" style="height: 100%;">
+                <div id="placeholder" class="placeholder-text">
+                    Waiting for data analysis...
+                </div>
+
+                <div class="loader" id="loader"></div>
+
+                <div class="prediction-box" id="predictionBox">
+                    <p class="prediction-label">Classification Result</p>
+                    <div class="prediction-value" id="predictionValue">HEAVY CRACK</div>
+                </div>
+
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <p class="stat-name">TOTAL AREA</p>
+                        <p class="stat-num" id="areaValue">0.00</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-name">PERIMETER</p>
+                        <p class="stat-num" id="perimeterValue">0.00</p>
+                    </div>
+                    <div class="stat-card" style="grid-column: span 2;">
+                        <p class="stat-name">CRACK CONTOURS FOUND</p>
+                        <p class="stat-num" id="crackCount">0</p>
+                    </div>
+                </div>
+
+                <!-- New: Processing Steps -->
+                <div id="stepsSection" style="display: none; margin-top: 2rem;">
+                    <p class="prediction-label">Preprocessing Pipeline</p>
+                    <div class="steps-grid">
+                        <div class="step-item">
+                            <img id="step-resized" src="" alt="Resized">
+                            <span>1. Resized</span>
+                        </div>
+                        <div class="step-item">
+                            <img id="step-grayscale" src="" alt="Gray">
+                            <span>2. Gray</span>
+                        </div>
+                        <div class="step-item">
+                            <img id="step-blurred" src="" alt="Blur">
+                            <span>3. Blur</span>
+                        </div>
+                        <div class="step-item">
+                            <img id="step-canny" src="" alt="Canny">
+                            <span>4. Canny</span>
+                        </div>
+                        <div class="step-item" style="grid-column: span 2;">
+                            <img id="step-binary" src="" alt="Binary" style="height: 120px; object-fit: contain;">
+                            <span>5. Final Binary (Morphology)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <style>
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .step-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .step-item img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .step-item span {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+    </style>
+
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const previewBox = document.getElementById('previewBox');
+        const imagePreview = document.getElementById('imagePreview');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const dropText = document.getElementById('dropText');
+        
+        const loader = document.getElementById('loader');
+        const placeholder = document.getElementById('placeholder');
+        const predictionBox = document.getElementById('predictionBox');
+        const statsGrid = document.getElementById('statsGrid');
+        
+        const predictionValue = document.getElementById('predictionValue');
+        const areaValue = document.getElementById('areaValue');
+        const perimeterValue = document.getElementById('perimeterValue');
+        const crackCount = document.getElementById('crackCount');
+
+        dropZone.onclick = () => fileInput.click();
+
+        dropZone.ondragover = (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        };
+
+        dropZone.ondragleave = () => {
+            dropZone.classList.remove('dragover');
+        };
+
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                handleFile(e.dataTransfer.files[0]);
+            }
+        };
+
+        fileInput.onchange = (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        };
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Invalid file type. Please upload an image.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                previewBox.style.display = 'block';
+                dropZone.style.display = 'none';
+                analyzeBtn.style.display = 'block';
+                
+                // Reset results
+                placeholder.style.display = 'block';
+                predictionBox.style.display = 'none';
+                statsGrid.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        analyzeBtn.onclick = async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            // UI State: Loading
+            analyzeBtn.style.display = 'none';
+            placeholder.style.display = 'none';
+            loader.style.display = 'block';
+            predictionBox.style.display = 'none';
+            statsGrid.style.display = 'none';
+            document.getElementById('stepsSection').style.display = 'none';
+
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    // Update Values
+                    const p = data.prediction;
+                    const type = p.split(' ')[0]; // HEAVY, MEDIUM, LIGHT, NON
+                    
+                    predictionValue.textContent = p;
+                    predictionValue.className = `prediction-value color-${type}`;
+                    
+                    areaValue.textContent = data.details.total_area.toLocaleString(undefined, {minimumFractionDigits: 2});
+                    perimeterValue.textContent = data.details.total_perimeter.toLocaleString(undefined, {minimumFractionDigits: 2});
+                    crackCount.textContent = data.details.crack_count;
+
+                    // Update steps images
+                    document.getElementById('step-resized').src = 'data:image/jpeg;base64,' + data.steps.resized;
+                    document.getElementById('step-grayscale').src = 'data:image/jpeg;base64,' + data.steps.grayscale;
+                    document.getElementById('step-blurred').src = 'data:image/jpeg;base64,' + data.steps.blurred;
+                    document.getElementById('step-canny').src = 'data:image/jpeg;base64,' + data.steps.canny;
+                    document.getElementById('step-binary').src = 'data:image/jpeg;base64,' + data.steps.binary;
+
+                    // UI State: Success
+                    loader.style.display = 'none';
+                    predictionBox.style.display = 'block';
+                    statsGrid.style.display = 'grid';
+                    document.getElementById('stepsSection').style.display = 'block';
+
+                } else {
+                    alert('Error: ' + data.message);
+                    resetUI();
+                }
+            } catch (err) {
+                alert('Connection failed. Please ensure the backend is running.');
+                resetUI();
+            }
+        };
+
+        function resetUI() {
+            loader.style.display = 'none';
+            placeholder.style.display = 'block';
+            analyzeBtn.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
