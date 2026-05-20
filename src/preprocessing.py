@@ -12,8 +12,6 @@ def preprocessing_image(image_path):
 
     gray = cv2.cvtColor(resized_img, cv2.COLOR_BGR2GRAY)
 
-    # ganti jadinya pake Bilateral yang kata AI sangat pintar, lets try.
-    # blur = cv2.bilateralFilter(gray, d=9, sigmaColor=75, sigmaSpace=75)
     blur = cv2.GaussianBlur(gray, (3, 3), 0.0)
 
     # Canny otsu method
@@ -28,4 +26,3 @@ def preprocessing_image(image_path):
     close = cv2.morphologyEx(canny, cv2.MORPH_CLOSE, kernel)
 
     return img, resized_img, gray, blur, canny, close
-

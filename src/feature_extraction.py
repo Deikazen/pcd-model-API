@@ -23,13 +23,8 @@ def extracted_feature(binary_image):
             perimeter = cv2.arcLength(cnt, True)
 
             if perimeter > 0:
-                # Circularity = (4 * pi * area) / (perimeter^2)
-                # Retak biasanya memiliki circularity yang sangat rendah (mendekati 0)
-                # karena bentuknya yang memanjang dan tidak beraturan.
                 circularity = (4 * np.pi * area) / (perimeter * perimeter)
 
-                # Filter ganda: Sangat ketat untuk area kecil, lebih longgar untuk area besar
-                # Ini membantu menghilangkan noise kecil di Negative sambil menangkap retakan besar di Positive
                 if (circularity < 0.01) or (area > 200 and circularity < 0.1):
 
                     total_area += area

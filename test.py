@@ -30,9 +30,8 @@ for label, paths in image_paths.items():
             "\\")[-1] if "\\" in path else path.split("/")[-1]
 
         try:
-            # Step A: Preprocessing
-            # Kita ambil hasil 'close' (binary) untuk ekstraksi fitur
-            img_original, gray, blur, canny, binary_img = preprocessing_image(
+
+            img_original, gray, blur, canny, binary_img, close = preprocessing_image(
                 path)
 
             # Step B: Feature Extraction

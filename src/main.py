@@ -7,7 +7,7 @@ import numpy as np
 
 image_path = r"dataset\negative\01403.jpg "
 
-img, gray, blur, canny, close = preprocessing_image(image_path)
+img, gray, blur, canny, close, binary_image = preprocessing_image(image_path)
 
 features, valid_contours = extracted_feature(close)
 
