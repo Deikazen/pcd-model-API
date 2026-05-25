@@ -121,6 +121,23 @@ Menampilkan antarmuka web.
     -   `< 700`: MEDIUM CRACK
     -   `> 700`: HEAVY CRACK
 
+## 📝 Catatan Revisi
+
+Terdapat dua revisi utama pada pengembangan sistem (tidak termasuk perubahan UI):
+
+### 1. Revisi Praktikum (Perbaikan Bug Penanganan Data)
+**Deskripsi:** Memperbaiki bug (error) saat penangkapan data akibat ketidakcocokan jumlah variabel (*unpacking error*) saat memanggil fungsi preprocessing. Selain itu juga dilakukan pembersihan beberapa komentar kode yang usang.
+**File/Folder yang direvisi:**
+- `src/main.py`: Penambahan variabel `binary_image` agar sesuai dengan *return value* fungsi preprocessing.
+- `test.py`: Penyesuaian parameter variabel penampung dari *return* fungsi `preprocessing_image`.
+- `src/feature_extraction.py`: Menghapus sisa komentar usang tentang logika *circularity*.
+- `src/preprocessing.py`: Menghapus sisa komentar untuk filter bilateral.
+
+### 2. Revisi Reguler (Penandaan Area Kerusakan Tembok)
+**Deskripsi:** Menambahkan fitur *bounding box* (kotak kuning) dan garis tepi (*contour* warna merah) pada titik kerusakan tembok pada hasil foto atau gambar.
+**File/Folder yang direvisi:**
+- `app.py`: Menambahkan fungsi `create_marked_damage_image` berbasis OpenCV untuk menyorot area kerusakan, dan meng-update endpoint `/predict` agar mengembalikan data gambar *marked* ke sisi *client*.
+
 ## 📂 Struktur Folder
 ```text
 crack_detection/
