@@ -96,7 +96,8 @@ Menganalisis gambar dan memberikan hasil klasifikasi.
     "grayscale": "base64_string...",
     "blurred": "base64_string...",
     "canny": "base64_string...",
-    "binary": "base64_string..."
+    "binary": "base64_string...",
+    "marked": "base64_string..."
   }
 }
 ```
@@ -115,7 +116,8 @@ Menampilkan antarmuka web.
 4.  **Canny Edge**: Mendeteksi tepi/garis yang berpotensi sebagai retakan.
 5.  **Morphology**: Menutup celah kecil pada garis retakan agar kontur lebih solid.
 6.  **Feature Extraction**: Menghitung luas area kontur yang valid (Area > 30).
-7.  **Classification**: Mengkategorikan tingkat keparahan berdasarkan total area:
+7.  **Damage Marking**: Menandai area kerusakan yang terdeteksi dengan *bounding box* kuning dan kontur merah.
+8.  **Classification**: Mengkategorikan tingkat keparahan berdasarkan total area:
     -   `< 10`: NON CRACK
     -   `< 300`: LIGHT CRACK
     -   `< 700`: MEDIUM CRACK
@@ -145,6 +147,10 @@ crack_detection/
 │   ├── preprocessing.py      # Logika filter & pemrosesan
 │   ├── feature_extraction.py # Hitung kontur & area
 │   └── classification.py     # Logika kategori retakan
+├── static/
+│   ├── script.js             # Logika interaksi frontend
+│   ├── style.css             # Styling antarmuka web
+│   └── images/               # Aset gambar untuk web
 ├── templates/
 │   └── index.html            # Frontend Dashboard
 ├── app.py                    # Entry point FastAPI
