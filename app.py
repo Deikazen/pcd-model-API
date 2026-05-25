@@ -5,18 +5,19 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 import cv2
-import numpy as np
 import os
 import tempfile
 import shutil
 import base64
 
-
 from src.preprocessing import preprocessing_image
 from src.feature_extraction import extracted_feature
 from src.classification import classification
 
+
 app = FastAPI(title="Crack Detection API")
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # CORS middleware
 app.add_middleware(
@@ -31,33 +32,51 @@ app.add_middleware(
 templates = Jinja2Templates(directory="templates")
 
 
+def create_marked_damage_image(image, contours):
+    marked_image = image.copy()
+
+    for contour in contours:
+        area = cv2.contourArea(contour)
+
+        if area > 30:
+            # Garis merah untuk kontur retakan
+            cv2.drawContours(marked_image, [contour], -1, (0, 0, 255), 2)
+
+            # Kotak kuning untuk area kerusakan
+            x, y, w, h = cv2.boundingRect(contour)
+            cv2.rectangle(marked_image, (x, y), (x + w, y + h), (0, 255, 255), 2)
+
+    return marked_image
+
 
 @app.post("/predict")
 async def predict(image: UploadFile = File(...)):
     try:
         # Save uploaded file to a temporary location
         suffix = os.path.splitext(image.filename)[1]
+
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp:
             await image.seek(0)
             shutil.copyfileobj(image.file, temp)
             temp_path = temp.name
 
-
         # Step A: Preprocessing
-        # Note: preprocessing_image now returns 6 items
         img_original, img_resized, gray, blur, canny, binary_img = preprocessing_image(temp_path)
 
         # Step B: Feature Extraction
         features, contours = extracted_feature(binary_img)
         area = features["total_area"]
 
+        # Step tambahan: kasih tanda kerusakan pada gambar
+        marked_img = create_marked_damage_image(img_resized, contours)
+
         # Step C: Classification
         prediction = classification(area)
 
         # Helper to encode to base64
         def encode_img(img):
-            _, buffer = cv2.imencode('.jpg', img)
-            return base64.b64encode(buffer).decode('utf-8')
+            _, buffer = cv2.imencode(".jpg", img)
+            return base64.b64encode(buffer).decode("utf-8")
 
         # Clean up temporary file
         os.remove(temp_path)
@@ -76,15 +95,16 @@ async def predict(image: UploadFile = File(...)):
                 "grayscale": encode_img(gray),
                 "blurred": encode_img(blur),
                 "canny": encode_img(canny),
-                "binary": encode_img(binary_img)
+                "binary": encode_img(binary_img),
+                "marked": encode_img(marked_img)
             }
         }
 
-
     except Exception as e:
-        if 'temp_path' in locals() and os.path.exists(temp_path):
+        if "temp_path" in locals() and os.path.exists(temp_path):
             os.remove(temp_path)
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
@@ -94,4 +114,3 @@ async def read_root(request: Request):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=5000)
-
