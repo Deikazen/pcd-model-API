@@ -22,6 +22,14 @@ const markedPlaceholder = document.getElementById("markedPlaceholder");
 const damagedWallImage = document.getElementById("damagedWallImage");
 const damagedPlaceholder = document.getElementById("damagedPlaceholder");
 
+const smoothWallImage = document.getElementById("smoothWallImage");
+const smoothPlaceholder = document.getElementById("smoothPlaceholder");
+
+const damagedStatus = document.getElementById("damagedStatus");
+const damagedArea = document.getElementById("damagedArea");
+const damagedContour = document.getElementById("damagedContour");
+const comparisonSummary = document.getElementById("comparisonSummary");
+
 const cursorGlow = document.getElementById("cursorGlow");
 
 const stepImages = {
@@ -35,7 +43,7 @@ const stepImages = {
 let selectedFile = null;
 
 /* =========================
-   Cursor glow interaction
+   Cursor Glow
 ========================= */
 
 document.addEventListener("mousemove", (event) => {
@@ -46,7 +54,7 @@ document.addEventListener("mousemove", (event) => {
 });
 
 /* =========================
-   3D tilt card interaction
+   3D Tilt Card
 ========================= */
 
 document.querySelectorAll(".tilt-card").forEach((card) => {
@@ -76,7 +84,7 @@ document.querySelectorAll(".tilt-card").forEach((card) => {
 });
 
 /* =========================
-   Upload interaction
+   Upload Image
 ========================= */
 
 dropZone.addEventListener("click", () => {
@@ -130,18 +138,34 @@ function handleFile(file) {
     analyzeBtn.style.display = "block";
     resetBtn.style.display = "block";
 
-    damagedWallImage.src = imageUrl;
-    damagedWallImage.style.display = "block";
-    damagedPlaceholder.style.display = "none";
-
     resetResultOnly();
+
+    if (damagedPlaceholder && damagedWallImage) {
+      damagedPlaceholder.style.display = "block";
+      damagedPlaceholder.innerText = "Area rusak akan muncul setelah analisis.";
+      damagedWallImage.src = "";
+      damagedWallImage.style.display = "none";
+    }
+
+    if (smoothPlaceholder && smoothWallImage) {
+      smoothPlaceholder.style.display = "block";
+      smoothPlaceholder.innerText = "Area halus akan muncul setelah analisis.";
+      smoothWallImage.src = "";
+      smoothWallImage.style.display = "none";
+    }
+
+    if (comparisonSummary) {
+      comparisonSummary.classList.remove("active");
+      comparisonSummary.innerText =
+        "Klik START ANALYSIS untuk membandingkan area rusak dan area halus dari gambar yang sama.";
+    }
   };
 
   reader.readAsDataURL(file);
 }
 
 /* =========================
-   Analyze image
+   Analyze Image
 ========================= */
 
 analyzeBtn.addEventListener("click", async () => {
@@ -162,6 +186,10 @@ analyzeBtn.addEventListener("click", async () => {
     });
 
     const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Server error.");
+    }
 
     if (data.status !== "success") {
       throw new Error(data.detail || "Analisis gagal.");
@@ -189,7 +217,28 @@ function setLoadingState() {
   markedPreview.classList.remove("has-image");
   markedPlaceholder.style.display = "block";
   markedPlaceholder.innerText = "Sedang mencari area kerusakan...";
+
+  if (damagedPlaceholder && damagedWallImage) {
+    damagedPlaceholder.style.display = "block";
+    damagedPlaceholder.innerText = "Sedang mengambil area rusak...";
+    damagedWallImage.style.display = "none";
+  }
+
+  if (smoothPlaceholder && smoothWallImage) {
+    smoothPlaceholder.style.display = "block";
+    smoothPlaceholder.innerText = "Sedang mengambil area halus...";
+    smoothWallImage.style.display = "none";
+  }
+
+  if (comparisonSummary) {
+    comparisonSummary.classList.remove("active");
+    comparisonSummary.innerText = "Sistem sedang membandingkan area rusak dan area halus...";
+  }
 }
+
+/* =========================
+   Show Result
+========================= */
 
 function showResult(data) {
   const prediction = data.prediction;
@@ -212,15 +261,18 @@ function showResult(data) {
 
   setMarkedImage(data);
   setPipelineImages(data);
+  updateComparisonInfo(data);
 
   resetBtn.style.display = "block";
 }
 
+/* =========================
+   Revisi Reguler:
+   Menampilkan Tanda Kerusakan
+========================= */
+
 function setMarkedImage(data) {
-  const marked =
-    data.steps.marked ||
-    data.steps.binary ||
-    data.steps.canny;
+  const marked = data.steps.marked || data.steps.binary || data.steps.canny;
 
   if (!marked) {
     markedPlaceholder.style.display = "block";
@@ -233,6 +285,64 @@ function setMarkedImage(data) {
   markedPlaceholder.style.display = "none";
   markedPreview.classList.add("has-image");
 }
+
+/* =========================
+   Revisi Praktikum:
+   Perbandingan Area Rusak dan Area Halus
+========================= */
+
+function updateComparisonInfo(data) {
+  const prediction = data.prediction;
+  const area = Number(data.details.total_area);
+  const contour = Number(data.details.crack_count);
+
+  if (data.steps && data.steps.damaged_crop && damagedWallImage && damagedPlaceholder) {
+    damagedWallImage.src = "data:image/jpeg;base64," + data.steps.damaged_crop;
+    damagedWallImage.style.display = "block";
+    damagedPlaceholder.style.display = "none";
+  } else if (damagedPlaceholder && damagedWallImage) {
+    damagedPlaceholder.style.display = "block";
+    damagedPlaceholder.innerText = "Area rusak belum tersedia dari backend.";
+    damagedWallImage.style.display = "none";
+  }
+
+  if (data.steps && data.steps.smooth_crop && smoothWallImage && smoothPlaceholder) {
+    smoothWallImage.src = "data:image/jpeg;base64," + data.steps.smooth_crop;
+    smoothWallImage.style.display = "block";
+    smoothPlaceholder.style.display = "none";
+  } else if (smoothPlaceholder && smoothWallImage) {
+    smoothPlaceholder.style.display = "block";
+    smoothPlaceholder.innerText = "Area halus belum tersedia dari backend.";
+    smoothWallImage.style.display = "none";
+  }
+
+  if (damagedStatus) {
+    damagedStatus.textContent = prediction;
+  }
+
+  if (damagedArea) {
+    damagedArea.textContent = area.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }
+
+  if (damagedContour) {
+    damagedContour.textContent = contour;
+  }
+
+  if (comparisonSummary) {
+    comparisonSummary.classList.add("active");
+    comparisonSummary.innerText =
+      `Perbandingan ini mengambil dua area dari gambar yang sama. Area kiri adalah bagian yang terdeteksi rusak/retak dengan total area ${area.toFixed(
+        2
+      )} dan ${contour} contour. Area kanan adalah bagian tembok yang digunakan sebagai pembanding area halus/normal.`;
+  }
+}
+
+/* =========================
+   Preprocessing Pipeline
+========================= */
 
 function setPipelineImages(data) {
   const steps = data.steps;
@@ -271,10 +381,6 @@ function resetUI() {
   analyzeBtn.style.display = "none";
   resetBtn.style.display = "none";
 
-  damagedWallImage.src = "";
-  damagedWallImage.style.display = "none";
-  damagedPlaceholder.style.display = "block";
-
   resetResultOnly();
 }
 
@@ -300,15 +406,40 @@ function resetResultOnly() {
   markedPlaceholder.style.display = "block";
   markedPlaceholder.innerText = "Hasil tanda kerusakan akan muncul di sini.";
 
+  if (damagedWallImage && damagedPlaceholder) {
+    damagedWallImage.src = "";
+    damagedWallImage.style.display = "none";
+    damagedPlaceholder.style.display = "block";
+    damagedPlaceholder.innerText = "Belum ada hasil";
+  }
+
+  if (smoothWallImage && smoothPlaceholder) {
+    smoothWallImage.src = "";
+    smoothWallImage.style.display = "none";
+    smoothPlaceholder.style.display = "block";
+    smoothPlaceholder.innerText = "Belum ada hasil";
+  }
+
+  if (damagedStatus) damagedStatus.textContent = "Belum dianalisis";
+  if (damagedArea) damagedArea.textContent = "0.00";
+  if (damagedContour) damagedContour.textContent = "0";
+
+  if (comparisonSummary) {
+    comparisonSummary.classList.remove("active");
+    comparisonSummary.innerText =
+      "Upload gambar terlebih dahulu untuk melihat perbandingan area rusak dan area halus.";
+  }
+
   Object.values(stepImages).forEach((img) => {
     if (!img) return;
+
     img.src = "";
     img.parentElement.classList.remove("has-image");
   });
 }
 
 /* =========================
-   Number animation
+   Number Animation
 ========================= */
 
 function animateNumber(element, target, decimals = 0) {

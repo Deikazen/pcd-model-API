@@ -24,7 +24,7 @@
             <h1>Crack Detective AI</h1>
             <p>
                 Sistem deteksi kerusakan tembok berbasis FastAPI dan OpenCV
-                dengan visualisasi tanda kerusakan dan perbandingan tembok.
+                dengan visualisasi tanda kerusakan dan perbandingan area tembok.
             </p>
         </div>
 
@@ -72,26 +72,67 @@
                 <div class="card-header">
                     <span class="card-number">02</span>
                     <div>
-                        <h2>Perbandingan Tembok</h2>
-                        <p>Revisi praktikum: membandingkan tembok rusak dan tembok halus.</p>
+                        <h2>Perbandingan Area Tembok</h2>
+                        <p>Revisi praktikum: membandingkan area rusak dan area halus dari gambar yang sama.</p>
                     </div>
                 </div>
 
-                <div class="comparison-grid">
+                <div class="comparison-grid enhanced">
                     <div class="compare-box damaged">
-                        <span class="compare-label">Tembok Rusak</span>
+                        <span class="compare-label">Area Rusak / Retak</span>
+
                         <div class="compare-image">
-                            <p id="damagedPlaceholder">Belum ada gambar</p>
-                            <img id="damagedWallImage" src="" alt="Tembok rusak">
+                            <p id="damagedPlaceholder">Area rusak akan muncul setelah analisis.</p>
+                            <img id="damagedWallImage" src="" alt="Area tembok rusak">
+                        </div>
+
+                        <div class="compare-info">
+                            <div class="info-row">
+                                <span>Status</span>
+                                <strong id="damagedStatus">Belum dianalisis</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Area Kerusakan</span>
+                                <strong id="damagedArea">0.00</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Jumlah Contour</span>
+                                <strong id="damagedContour">0</strong>
+                            </div>
                         </div>
                     </div>
 
                     <div class="compare-box smooth">
-                        <span class="compare-label">Tembok Halus</span>
+                        <span class="compare-label">Area Halus / Normal</span>
+
                         <div class="compare-image">
-                            <img class="smooth-wall-img" src="/static/images/wall-smooth.jpg" alt="Tembok halus">
+                            <p id="smoothPlaceholder">Area halus akan muncul setelah analisis.</p>
+                            <img id="smoothWallImage" src="" alt="Area tembok halus">
+                        </div>
+
+                        <div class="compare-info">
+                            <div class="info-row">
+                                <span>Status</span>
+                                <strong class="normal-text">Pembanding Normal</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Area Kerusakan</span>
+                                <strong>0.00</strong>
+                            </div>
+
+                            <div class="info-row">
+                                <span>Jumlah Contour</span>
+                                <strong>0</strong>
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="comparison-summary" id="comparisonSummary">
+                    Upload gambar terlebih dahulu untuk melihat perbandingan area rusak dan area halus.
                 </div>
             </div>
         </section>
