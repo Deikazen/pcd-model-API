@@ -12,17 +12,22 @@ def preprocessing_image(image_path):
 
     gray = cv2.cvtColor(resized_img, cv2.COLOR_BGR2GRAY)
 
-    blur = cv2.GaussianBlur(gray, (3, 3), 0.0)
+    # Blur sedikit lebih besar untuk mengurangi noise halus
+    blur = cv2.GaussianBlur(gray, (5, 5), 0.0)
 
     # Canny otsu method
-
-    ht, _ = cv2.threshold(
-        blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    ht, _ = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     lt = 0.5 * ht
-    canny = cv2.Canny(blur, ht, lt)
+    
+    # Canny edge detection (pastikan urutan lt dan ht benar)
+    canny = cv2.Canny(blur, int(lt), int(ht))
 
-    kernel = np.ones((3, 3), dtype=np.uint8)
+    # Gunakan kernel 5x5 dan Dilation untuk menebalkan garis retakan
+    # Ini membuat retakan terdeteksi lebih luas dan persentase lebih realistis
+    kernel = np.ones((5, 5), dtype=np.uint8)
+    dilated = cv2.dilate(canny, kernel, iterations=1)
 
-    close = cv2.morphologyEx(canny, cv2.MORPH_CLOSE, kernel)
+    # Tutup celah-celah kecil di dalam area retakan
+    close = cv2.morphologyEx(dilated, cv2.MORPH_CLOSE, kernel)
 
     return img, resized_img, gray, blur, canny, close

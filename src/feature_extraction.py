@@ -4,8 +4,9 @@ import numpy as np
 
 def extracted_feature(binary_image):
 
+    # Gunakan RETR_EXTERNAL agar tidak menghitung kontur di dalam garis retakan tebal
     contours, _ = cv2.findContours(
-        binary_image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        binary_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     total_area = 0
     total_perimeter = 0
@@ -17,15 +18,18 @@ def extracted_feature(binary_image):
 
         area = cv2.contourArea(cnt)
 
-        # filter noise kecil
-        if area > 30:
+        # Filter noise kecil. Karena sudah didilasi, ukurannya pasti membesar, pakai batas yang sedikit lebih tinggi
+        if area > 80:
 
             perimeter = cv2.arcLength(cnt, True)
 
             if perimeter > 0:
                 circularity = (4 * np.pi * area) / (perimeter * perimeter)
 
-                if (circularity < 0.01) or (area > 200 and circularity < 0.1):
+                # Longgarkan syarat circularity agar retakan tebal atau pendek tetap terdeteksi.
+                # Retakan umumnya memanjang, sehingga circularity jauh dari 1 (bulat sempurna).
+                # Kita gunakan batas < 0.6 untuk membedakannya dengan noise yang benar-benar bulat.
+                if circularity < 0.6:
 
                     total_area += area
                     total_perimeter += perimeter

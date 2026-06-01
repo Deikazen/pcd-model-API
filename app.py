@@ -122,6 +122,11 @@ async def predict(image: UploadFile = File(...)):
         features, contours = extracted_feature(binary_img)
         area = features["total_area"]
 
+        # Calculate crack percentage
+        h, w = img_resized.shape[:2]
+        image_area = h * w
+        crack_percentage = (area / image_area) * 100 if image_area > 0 else 0
+
         # Step tambahan: kasih tanda kerusakan pada gambar 
         marked_img = create_marked_damage_image(img_resized, contours, binary_img)
 
@@ -145,7 +150,8 @@ async def predict(image: UploadFile = File(...)):
             "details": {
                 "total_area": float(area),
                 "total_perimeter": float(features["total_perimeter"]),
-                "crack_count": int(features["crack_count"])
+                "crack_count": int(features["crack_count"]),
+                "crack_percentage": float(crack_percentage)
             },
             "steps": {
                 "original": encode_img(img_original),

@@ -14,6 +14,7 @@ const predictionValue = document.getElementById("predictionValue");
 const areaValue = document.getElementById("areaValue");
 const perimeterValue = document.getElementById("perimeterValue");
 const crackCount = document.getElementById("crackCount");
+const crackPercentage = document.getElementById("crackPercentage");
 
 const markedPreview = document.querySelector(".marked-preview");
 const markedImage = document.getElementById("markedImage");
@@ -255,6 +256,7 @@ function showResult(data) {
   animateNumber(areaValue, Number(data.details.total_area), 2);
   animateNumber(perimeterValue, Number(data.details.total_perimeter), 2);
   animateNumber(crackCount, Number(data.details.crack_count), 0);
+  animateNumber(crackPercentage, Number(data.details.crack_percentage), 2, "%");
 
   statsGrid.style.display = "grid";
   statsGrid.classList.add("reveal");
@@ -399,6 +401,7 @@ function resetResultOnly() {
   areaValue.textContent = "0.00";
   perimeterValue.textContent = "0.00";
   crackCount.textContent = "0";
+  crackPercentage.textContent = "0.00%";
 
   markedImage.src = "";
   markedImage.style.display = "none";
@@ -442,7 +445,7 @@ function resetResultOnly() {
    Number Animation
 ========================= */
 
-function animateNumber(element, target, decimals = 0) {
+function animateNumber(element, target, decimals = 0, suffix = "") {
   const duration = 900;
   const start = 0;
   const startTime = performance.now();
@@ -457,7 +460,7 @@ function animateNumber(element, target, decimals = 0) {
     element.textContent = currentValue.toLocaleString(undefined, {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
-    });
+    }) + suffix;
 
     if (progress < 1) {
       requestAnimationFrame(update);
