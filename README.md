@@ -121,7 +121,8 @@ Menganalisis gambar dan memberikan hasil klasifikasi, tanda kerusakan, dan perba
   "details": {
     "total_area": 1250.5,
     "total_perimeter": 3450.2,
-    "crack_count": 3
+    "crack_count": 3,
+    "crack_percentage": 2.49
   },
   "steps": {
     "original": "base64_string...",
@@ -166,7 +167,7 @@ Menampilkan antarmuka web.
 3.  **Gaussian Blur**: Menghilangkan noise/gangguan kecil pada gambar menggunakan kernel 3×3.
 4.  **Canny Edge Detection**: Mendeteksi tepi/garis menggunakan metode Otsu untuk threshold otomatis.
 5.  **Morphological Closing**: Menutup celah kecil pada garis retakan agar kontur lebih solid menggunakan kernel 3×3.
-6.  **Feature Extraction**: Menghitung luas area dan perimeter kontur yang valid (Area > 30) dengan filter circularity untuk membedakan retakan dari noise bulat.
+6.  **Feature Extraction**: Menghitung luas area, perimeter kontur yang valid (Area > 30), dan **persentase kerusakan** (rasio area retakan terhadap total area gambar).
 7.  **Damage Marking** *(Revisi Reguler)*: Menandai area kerusakan dengan overlay merah dan *bounding box* kuning.
 8.  **Comparison Images** *(Revisi Praktikum)*: Menghasilkan crop area rusak dan crop area halus untuk perbandingan visual.
 9.  **Classification**: Mengkategorikan tingkat keparahan berdasarkan total area:
@@ -527,7 +528,7 @@ Dashboard web terdiri dari 5 section utama:
 | --- | --- | --- |
 | 01 | **Upload Image** | Area drag & drop atau klik untuk upload gambar tembok. Dilengkapi animasi 3D wall dan scan line. |
 | 02 | **Perbandingan Area Tembok** *(Revisi Praktikum)* | Menampilkan perbandingan side-by-side area rusak vs area halus dengan statistik (status, area, jumlah contour). |
-| 03 | **Analysis Result** | Menampilkan hasil klasifikasi (NON/LIGHT/MEDIUM/HEAVY CRACK) dengan warna dan statistik yang terangmati. |
+| 03 | **Analysis Result** | Menampilkan hasil klasifikasi (NON/LIGHT/MEDIUM/HEAVY CRACK) beserta **persentase kerusakan** dengan warna dan statistik yang teranimasi. |
 | 04 | **Tanda Kerusakan Tembok** *(Revisi Reguler)* | Menampilkan gambar dengan overlay merah pada retakan dan bounding box kuning di sekeliling area kerusakan. |
 | 05 | **Preprocessing Pipeline** | Visualisasi 5 tahap preprocessing: Resized → Grayscale → Blur → Canny → Binary. |
 
