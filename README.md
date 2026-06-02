@@ -22,8 +22,7 @@ graph TD
     end
     
     P5 --> FE[Feature Extraction]
-    FE -->|Total Area, Perimeter, Crack Count| CL[Classification Logic]
-    
+    FE -->|Total Area, Perimeter, Crack Count, Crack Percentage| CL[Classification Logic]
     subgraph "Revisi Reguler"
         FE -->|Contours + Binary| MD["Marked Damage Image<br/>(Overlay Merah + Bounding Box Kuning)"]
     end
