@@ -3,3 +3,6 @@ arsitektur
 output
 **/__pycache__/
 *.pyc
+dataset
+__pycache__
+src/__pycache__/

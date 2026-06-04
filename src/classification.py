@@ -19,7 +19,7 @@ def classification(total_area):
         return "NON CRACK"
     elif total_area < 300:
         return "LIGHT CRACK"
-    elif total_area < 700:
+    elif total_area < 1500:
         return "MEDIUM CRACK"
     else:
         return "HEAVY CRACK"
